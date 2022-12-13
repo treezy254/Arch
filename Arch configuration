@@ -1,0 +1,93 @@
+ip link
+ping 8.8.8.8
+timedatectl status
+fdisk -l
+fdisk /dev/sda
+	m
+	g
+	n
+	1
+	-
+	+550M
+	n
+	2
+	-
+	+2G
+	n
+	3
+	-
+	-t
+	1
+	1
+	t
+	2
+	19
+	w
+
+mkfs.fat -F32 /dev/sda1
+mkswap /dev/sda2
+swapon /dev/sda2
+mkfs.ext4 /dev/sda3
+mount /dev/sda3  /mnt
+pacstrap /mnt base linux linux-firmware vim
+genfstab -U /mnt >> /mnt/etc/fstab
+arch-chroot /mnt
+ln -sf /usr/share/zoneinfo/EST/Nairobi  /etc/localtime
+hwclock --systohc
+pacman -S nano
+nano /etc/local.gen
+	# uncomment en-us UTF-8
+locale-gen
+nano /etc/hostname
+	write:	Archvbox	
+nano /etc/hosts
+	127.0.0.1 		localhost
+	::1 			localhost
+	127.0.1.1 		archvbox.localdomain		archvbox
+
+passwd
+useradd -m angel
+passwd angel
+usermod -aG wheel,audio,video,optical,storage angel
+pacman -S sudo
+Editor=nano visudo
+	uncomment wheel group
+pacman -S grub
+pacman -S efibootmgr dosfstools os-prober mtools
+mkdir /boot/EFI
+mount /dev/sda1  /boot/EFI
+grub-install --target=x86_64-efi --bootloader-id=GRUB --efi-directory=/boot/EFI --no-nvram --removable --force
+grub-mkconfig -o /boot/grub/grub.cfg
+pacman -S networkmanager git
+systemctl enable NetworkManager
+exit
+umount -l /mnt
+reboot
+
+
+-----
+
+lspci | grep -e VGA
+sudo pacman -Syyu
+sudo pacman -S nvidia nvidia-utils nvidia-settings
+
+[vbox: sudo pacman -S virtualbox-guest-utils virtualbox-guest-dkms]
+
+sudo pacman -S xorg xterm xorg-xinit
+
+startx
+
+sudo pacman -S cinnamon nemo-fileroller
+
+
+sudo pacman -S gdm
+sudo systemctl enable gdm
+sudo systemct start gdm
+
+sudo pacman -S pulseaudio pulseaudio-alsa pavuvontrol
+
+sudo pacman -S gnome-terminal gnome-system-monitor
+
+sudo pacman -S firefox vlc audacious
+
+sudo pacman -S libreoffice
